@@ -1,16 +1,18 @@
 [
-{
-  "modid": "examplemod",
-  "name": "Example Mod",
-  "description": "Example placeholder mod.",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "",
-  "updateUrl": "",
-  "authorList": ["CleanroomMC"],
-  "credits": "Authors of this project",
-  "logoFile": "",
-  "screenshots": [],
-  "dependencies": []
-}
+  {
+    "modid": "${mod_id}",
+    "name": "${mod_name}",
+    "description": "ImGuiLib Forge 1.12!",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "MiuxuE"
+    ],
+    "credits": "CleanroomMC",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
 ]
