@@ -63,6 +63,7 @@ minecraft {
 
     injectedTags.put('VERSION', project.version)
     injectedTags.put('MOD_ID', project.mod_id)
+    injectedTags.put('NAME', project.archives_base_name)
 }
 
 // Generate a group.archives_base_name.Tags class

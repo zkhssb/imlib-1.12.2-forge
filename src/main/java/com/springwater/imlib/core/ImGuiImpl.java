@@ -5,8 +5,6 @@ import com.springwater.imlib.impl.ImGuiImplDisplay;
 import com.springwater.imlib.impl.ImGuiImplGl2;
 import imgui.*;
 import imgui.extension.implot.ImPlot;
-
-
 import imgui.flag.ImGuiCol;
 import imgui.flag.ImGuiConfigFlags;
 import net.minecraft.client.renderer.GlStateManager;
@@ -40,7 +38,7 @@ public class ImGuiImpl {
         rangesBuilder.addRanges(fonts.getGlyphRangesChineseFull());
         final short[] glyphRanges = GetGlyphRangesChineseFull();
 
-        styleDark(ImGui.getStyle());
+        //styleDark(ImGui.getStyle());
 
         final ImFontConfig basicConfig = new ImFontConfig();
         basicConfig.setGlyphRanges(glyphRanges);
@@ -159,10 +157,8 @@ public class ImGuiImpl {
         imGuiImplGl2.renderDrawData(ImGui.getDrawData());
 
         if (ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)) {
-            GlStateManager.pushAttrib();
             ImGui.updatePlatformWindows();
             ImGui.renderPlatformWindowsDefault();
-            GlStateManager.popAttrib();
         }
     }
 
