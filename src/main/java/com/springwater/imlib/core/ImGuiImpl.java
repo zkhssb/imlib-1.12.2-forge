@@ -14,6 +14,8 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ImGuiImpl {
@@ -22,6 +24,7 @@ public class ImGuiImpl {
 
     public static ImFont defaultFont;
     public static ImFont font21;
+    private static final List<FontRegistrInterface> fontRegistrationCallbacks = new ArrayList<>();
 
     public static void create() {
         ImGui.createContext();
@@ -36,7 +39,7 @@ public class ImGuiImpl {
         //rangesBuilder.addRanges(fonts.getGlyphRangesCyrillic());
         //rangesBuilder.addRanges(fonts.getGlyphRangesDefault());
         rangesBuilder.addRanges(fonts.getGlyphRangesChineseFull());
-        final short[] glyphRanges = GetGlyphRangesChineseFull();
+        final short[] glyphRanges = getGlyphRangesChineseFull();
 
         //styleDark(ImGui.getStyle());
 
@@ -57,21 +60,28 @@ public class ImGuiImpl {
                     basicConfig,
                     glyphRanges
             );
+
+            for (FontRegistrInterface callback : fontRegistrationCallbacks) {
+                callback.registerFonts(glyphRanges);
+            }
+
         } catch (Exception ex) {
             ex.printStackTrace();
+        } finally {
+            fontRegistrationCallbacks.clear();
         }
         fonts.build();
         basicConfig.destroy();
 
-        //data.setConfigFlags(ImGuiConfigFlags.DockingEnable);
+        //  data.setConfigFlags(ImGuiConfigFlags.DockingEnable);
         // In case you want to enable Viewports on Windows, you have to do this instead of the above line:
-        data.setConfigFlags(ImGuiConfigFlags.DockingEnable | ImGuiConfigFlags.ViewportsEnable);
+        // data.setConfigFlags(ImGuiConfigFlags.DockingEnable | ImGuiConfigFlags.ViewportsEnable);
 
         imGuiImplDisplay.init();
         imGuiImplGl2.init();
     }
 
-    private static void styleDark(ImGuiStyle style) {
+    public static void styleDark(ImGuiStyle style) {
         style.setAlpha(0.95f);
         style.setDisabledAlpha(0.6000000238418579f);
         style.setWindowPadding(8.0f, 8.0f);
@@ -151,6 +161,10 @@ public class ImGuiImpl {
         imGuiImplDisplay.onKey();
     }
 
+    public static void registerFontRegistrationCallback(final FontRegistrInterface callback) {
+        fontRegistrationCallbacks.add(callback);
+    }
+
     public static void draw(final RenderInterface runnable) {
         imGuiImplDisplay.newFrame(); // Handle keyboard and mouse interactions
         ImGui.newFrame();
@@ -166,7 +180,7 @@ public class ImGuiImpl {
         }
     }
 
-    public static short[] GetGlyphRangesChineseFull() {
+    public static short[] getGlyphRangesChineseFull() {
         char[] ranges = {
                 0x0020, 0x00FF,
                 0x2000, 0x206F,
