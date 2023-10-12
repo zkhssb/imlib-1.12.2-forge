@@ -147,6 +147,10 @@ public class ImGuiImpl {
         style.setColor(ImGuiCol.ModalWindowDimBg, 0.1450980454683304f, 0.1450980454683304f, 0.1490196138620377f, 1.0f);
     }
 
+    public static void handleKey() {
+        imGuiImplDisplay.onKey();
+    }
+
     public static void draw(final RenderInterface runnable) {
         imGuiImplDisplay.newFrame(); // Handle keyboard and mouse interactions
         ImGui.newFrame();

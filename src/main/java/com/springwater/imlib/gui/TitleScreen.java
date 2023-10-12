@@ -6,6 +6,8 @@ import imgui.*;
 import imgui.flag.ImGuiCol;
 import net.minecraft.client.gui.GuiMainMenu;
 
+import java.io.IOException;
+
 public class TitleScreen extends GuiMainMenu {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -28,8 +30,16 @@ public class TitleScreen extends GuiMainMenu {
             textPosition.y += fontSizeTitle.y; // 更新文本位置
             draw.addText(textPosition.x, textPosition.y, ImColor.rgb("#aeb0b3"), Tags.VERSION); // 绘制版本号
 
+            //ImGui.showDemoWindow();
+
             ImGui.popFont();
         });
 
+    }
+
+    @Override
+    public void handleKeyboardInput() throws IOException {
+        super.handleKeyboardInput();
+        ImGuiImpl.handleKey();
     }
 }
