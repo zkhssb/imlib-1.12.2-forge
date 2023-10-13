@@ -1,16 +1,105 @@
-## TemplateDevEnv
+## ImGuiLib Forge 1.12.2 
 
-Template workspace for modding Minecraft 1.12.2. Licensed under MIT, it is made for public use.
+此库提供了一个ImGui绘制实现,可以在Minecraft(Forge) 1.12.2中使用ImGui
 
-This template currently utilizies **Gradle 8.1.1** + **[RetroFuturaGradle](https://github.com/GTNewHorizons/RetroFuturaGradle) 1.3.6** + **Forge 14.23.5.2847**.
+![title_screen]("./img/img_1.png")
 
-With **coremod and mixin support** that is easy to configure.
+### 特别说明
 
-### Instructions:
+本Lib只测试了Windows环境下的运行情况
 
-1. Click `use this template` at the top.
-2. Clone the repository you have created with this template.
-3. In the local repository, run the command `gradlew setupDecompWorkspace`
-4. Open the project folder in IDEA.
-5. Right-click in IDEA `build.gradle` of your project, and select `Link Gradle Project`, after completion, hit `Refresh All` in the gradle tab on the right.
-6. Run `gradlew runClient` and `gradlew runServer`, or use the auto-imported run configurations in IntelliJ like `1. Run Client`.
+需要在Screen中处理键盘输入和鼠标事件,以下是一个简单窗口绘制
+
+```java
+public class MyGuiScreen extends GuiScreen{
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        super.drawScreen(mouseX, mouseY, partialTicks);
+        ImGuiImpl.draw(io -> {
+            ImGui.showDemoWindow();
+        });
+    }
+
+    @Override
+    public void handleKeyboardInput() throws IOException {
+        super.handleKeyboardInput();
+        ImGuiImpl.handleKey(); // 需要手动在此处调用此方法处理按键消息
+    }
+    
+    @Override
+    public void handleMouseInput() throws IOException {
+        super.handleMouseInput();
+        ImGuiImpl.handleMouse();// 需要手动在此处调用此方法处理鼠标滚轮等消息
+    }
+}
+```
+
+### 引用的代码
+
+[fabric-imgui-example-mod]("https://github.com/FlorianMichael/fabric-imgui-example-mod")
+
+[imgui-lwjgl2]("https://github.com/factrick45/imgui-lwjgl2")
+
+### 示例代码
+
+<details>
+  <summary>ImGui初始化事件 & 事件注册</summary>
+
+`MyMod.java`
+```java
+@Mod(modid = Tags.MOD_ID, version = Tags.VERSION, dependencies = "required:imlib@[1.0,);")
+public class MyMod {
+    public static final Logger LOGGER = LogManager.getLogger(Tags.MOD_ID);
+
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event){
+        ImGuiImpl.registerCallBack(new ImGuiInit());
+    }
+}
+```
+
+`ImGuiInit.java`
+```java
+public class ImGuiInit implements ImGuiInitInterface {
+    public static ImFont FONT_TITLE_48;
+    public static ImFont FONT_TITLE_36;
+    public static ImFont FONT_TITLE_28;
+
+    @Override
+    public void preInit() { // 创建Imgui上下文后执行
+    }
+
+    @Override
+    public void loadFont(ImFontAtlas imFontAtlas, short[] shorts) throws IOException { // 加载字体
+        FONT_TITLE_48 = imFontAtlas.addFontFromMemoryTTF(
+                IOUtils.toByteArray(Objects.requireNonNull(ImLib.class.getResourceAsStream("/assets/imlib/fonts/Alibaba-PuHuiTi-Regular.ttf"))),
+                48,
+                ImGuiImpl.getGlyphRangesChineseFull()
+        );
+        FONT_TITLE_36 = imFontAtlas.addFontFromMemoryTTF(
+                IOUtils.toByteArray(Objects.requireNonNull(ImLib.class.getResourceAsStream("/assets/imlib/fonts/Alibaba-PuHuiTi-Regular.ttf"))),
+                36,
+                ImGuiImpl.getGlyphRangesChineseFull()
+        );
+        FONT_TITLE_28 = imFontAtlas.addFontFromMemoryTTF(
+                IOUtils.toByteArray(Objects.requireNonNull(ImLib.class.getResourceAsStream("/assets/imlib/fonts/Alibaba-PuHuiTi-Regular.ttf"))),
+                28,
+                ImGuiImpl.getGlyphRangesChineseFull()
+        );
+    }
+
+    @Override
+    public void postInit() { // ImGui初始化完毕
+        // ImGuiImpl.styleDark(); // 设置黑色样式(美化过!)
+    }
+}
+```
+</details>
+
+### 已知的问题
+
+ - 在添加了启动参数`-Dfile.encoding=UTF-8`后可能导致窗口乱码
+
+ ![error]("./img/img_2.png")
+
+ - ImGuiConfigFlags.ViewportsEnable无法使用

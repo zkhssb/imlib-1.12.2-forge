@@ -30,7 +30,7 @@ public class TitleScreen extends GuiMainMenu {
             textPosition.y += fontSizeTitle.y; // 更新文本位置
             draw.addText(textPosition.x, textPosition.y, ImColor.rgb("#aeb0b3"), Tags.VERSION); // 绘制版本号
 
-            //ImGui.showDemoWindow();
+            ImGui.showDemoWindow();
 
             ImGui.popFont();
         });
