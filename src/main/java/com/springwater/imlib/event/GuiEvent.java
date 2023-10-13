@@ -1,6 +1,5 @@
 package com.springwater.imlib.event;
 
-import com.springwater.imlib.ImLib;
 import com.springwater.imlib.gui.TitleScreen;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -14,7 +13,7 @@ public class GuiEvent {
             event.setGui(new TitleScreen());
         }
 
-        ImLib.LOGGER.info("Gui Open:{}", event.getGui().getClass().getName());
+        //ImLib.LOGGER.info("Gui Open:{}", event.getGui().getClass().getName());
 
     }
 }
