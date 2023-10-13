@@ -42,4 +42,10 @@ public class TitleScreen extends GuiMainMenu {
         super.handleKeyboardInput();
         ImGuiImpl.handleKey();
     }
+
+    @Override
+    public void handleMouseInput() throws IOException {
+        super.handleMouseInput();
+        ImGuiImpl.handleMouse();
+    }
 }

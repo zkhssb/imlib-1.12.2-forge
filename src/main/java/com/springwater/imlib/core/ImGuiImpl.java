@@ -13,6 +13,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +25,13 @@ public class ImGuiImpl {
 
     public static ImFont defaultFont;
     public static ImFont font21;
-    private static final List<FontRegistrInterface> fontRegistrationCallbacks = new ArrayList<>();
+    private static final List<ImGuiInitInterface> initFunctions = new ArrayList<>();
+    private static boolean isCreated = false;
 
     public static void create() {
+        if (isCreated) {
+            return;
+        }
         ImGui.createContext();
         ImPlot.createContext();
 
@@ -34,18 +39,18 @@ public class ImGuiImpl {
         data.setIniFilename("imguilib.ini");
         data.setFontGlobalScale(1F);
 
-        final ImFontAtlas fonts = data.getFonts();
-        final ImFontGlyphRangesBuilder rangesBuilder = new ImFontGlyphRangesBuilder();
-        //rangesBuilder.addRanges(fonts.getGlyphRangesCyrillic());
-        //rangesBuilder.addRanges(fonts.getGlyphRangesDefault());
-        rangesBuilder.addRanges(fonts.getGlyphRangesChineseFull());
-        final short[] glyphRanges = getGlyphRangesChineseFull();
+        for (ImGuiInitInterface callback : initFunctions) {
+            callback.preInit();
+        }
 
-        //styleDark(ImGui.getStyle());
+        final ImFontAtlas fonts = data.getFonts();
+        final short[] glyphRanges = getGlyphRangesChineseFull();
 
         final ImFontConfig basicConfig = new ImFontConfig();
         basicConfig.setGlyphRanges(glyphRanges);
         basicConfig.setName("alibaba 18px");
+
+
         try {
             defaultFont = fonts.addFontFromMemoryTTF(
                     IOUtils.toByteArray(Objects.requireNonNull(ImLib.class.getResourceAsStream("/assets/imlib/fonts/Alibaba-PuHuiTi-Regular.ttf"))),
@@ -61,27 +66,35 @@ public class ImGuiImpl {
                     glyphRanges
             );
 
-            for (FontRegistrInterface callback : fontRegistrationCallbacks) {
-                callback.registerFonts(glyphRanges);
+            try {
+                for (ImGuiInitInterface callback : initFunctions) {
+                    callback.loadFont(fonts, glyphRanges);
+                }
+            } catch (IOException ex) {
+                ImLib.LOGGER.error(ex);
             }
 
         } catch (Exception ex) {
             ex.printStackTrace();
-        } finally {
-            fontRegistrationCallbacks.clear();
         }
         fonts.build();
         basicConfig.destroy();
 
-        //  data.setConfigFlags(ImGuiConfigFlags.DockingEnable);
+        // data.setConfigFlags(ImGuiConfigFlags.DockingEnable);
         // In case you want to enable Viewports on Windows, you have to do this instead of the above line:
         // data.setConfigFlags(ImGuiConfigFlags.DockingEnable | ImGuiConfigFlags.ViewportsEnable);
 
+        for (ImGuiInitInterface callback : initFunctions) {
+            callback.postInit();
+        }
+
         imGuiImplDisplay.init();
         imGuiImplGl2.init();
+        isCreated = true;
+        initFunctions.clear();
     }
 
-    public static void styleDark(ImGuiStyle style) {
+    private static void styleDark(ImGuiStyle style) {
         style.setAlpha(0.95f);
         style.setDisabledAlpha(0.6000000238418579f);
         style.setWindowPadding(8.0f, 8.0f);
@@ -157,26 +170,38 @@ public class ImGuiImpl {
         style.setColor(ImGuiCol.ModalWindowDimBg, 0.1450980454683304f, 0.1450980454683304f, 0.1490196138620377f, 1.0f);
     }
 
+    public static void styleDark() {
+        styleDark(ImGui.getStyle());
+    }
+
     public static void handleKey() {
         imGuiImplDisplay.onKey();
     }
 
-    public static void registerFontRegistrationCallback(final FontRegistrInterface callback) {
-        fontRegistrationCallbacks.add(callback);
+    public static void handleMouse() {
+        imGuiImplDisplay.onMouse();
+    }
+
+    public static void registerCallBack(final ImGuiInitInterface callback) {
+        if (!isCreated) {
+            initFunctions.add(callback);
+        }
     }
 
     public static void draw(final RenderInterface runnable) {
-        imGuiImplDisplay.newFrame(); // Handle keyboard and mouse interactions
-        ImGui.newFrame();
-        runnable.render(ImGui.getIO());
-        ImGui.render();
+        if (isCreated) {
+            imGuiImplDisplay.newFrame(); // Handle keyboard and mouse interactions
+            ImGui.newFrame();
+            runnable.render(ImGui.getIO());
+            ImGui.render();
 
-        imGuiImplGl2.newFrame();
-        imGuiImplGl2.renderDrawData(ImGui.getDrawData());
+            imGuiImplGl2.newFrame();
+            imGuiImplGl2.renderDrawData(ImGui.getDrawData());
 
-        if (ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)) {
-            ImGui.updatePlatformWindows();
-            ImGui.renderPlatformWindowsDefault();
+            if (ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)) {
+                ImGui.updatePlatformWindows();
+                ImGui.renderPlatformWindowsDefault();
+            }
         }
     }
 
@@ -229,7 +254,6 @@ public class ImGuiImpl {
 
         return texture;
     }
-
     public static void destroyTexture(int textureId) {
         GlStateManager.deleteTexture(textureId);
     }

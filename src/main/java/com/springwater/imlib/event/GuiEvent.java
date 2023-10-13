@@ -14,8 +14,5 @@ public class GuiEvent {
         if (event.getGui() instanceof GuiMainMenu) {
             event.setGui(new TitleScreen());
         }
-
-        //ImLib.LOGGER.info("Gui Open:{}", event.getGui().getClass().getName());
-
     }
 }
