@@ -2,7 +2,7 @@
 
 此库提供了一个ImGui绘制实现,可以在Minecraft(Forge) 1.12.2中使用ImGui
 
-![title_screen]("./img/img_1.png")
+![title_screen](./img/img_1.png)
 
 ### 特别说明
 
@@ -100,6 +100,6 @@ public class ImGuiInit implements ImGuiInitInterface {
 
  - 在添加了启动参数`-Dfile.encoding=UTF-8`后可能导致窗口乱码
 
- ![error]("./img/img_2.png")
+ ![error](./img/img_2.png)
 
  - ImGuiConfigFlags.ViewportsEnable无法使用
