@@ -1,8 +1,6 @@
 package com.springwater.imlib;
 
 import com.springwater.imlib.core.ImGuiImpl;
-import com.springwater.imlib.event.GuiEvent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import org.apache.logging.log4j.LogManager;
@@ -15,6 +13,5 @@ public class ImLib{
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         ImGuiImpl.create();
-        MinecraftForge.EVENT_BUS.register(new GuiEvent());
     }
 }
